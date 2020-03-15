@@ -28,8 +28,8 @@ pipeline {
             description: COMMIT_AUTHOR
           )
         }
+              simplePipeline()
       }
-      simplePipeline()
     }
 
 
