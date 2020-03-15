@@ -1,43 +1,36 @@
-@Library('jenkins-shared-libraries@master') _
+jsl = library(
+  identifier: "jenkins-shared-library@${env.BRANCH_NAME}",
+  retriever: modernSCM(
+    [
+      $class: 'GitSCMSource',
+      remote: 'https://github.com/nileshpadwal456/jenkins-shared-library.git'
+    ]
+  )
+)
+
+build = jsl.com.mycompany.jenkins.Build.new(this)
+git = jsl.com.mycompany.jenkins.Git.new(this)
+
 pipeline {
+
   agent any
 
-    stages {
-      stage('Initialization') {
-          steps {
-            deleteDir()
-            checkout scm
-            script{
-            //  echo "[INFO] Loading JSON configuration from : ${env.WORKSPACE}/pipeline.json"
-            //  inputFile = readFile("${env.WORKSPACE}/pipeline.json")
-             parsedJson =  readJSON text: inputFile
-             echo "[INFO] Done Loading JSON configuration"
-             timer = BuildCause()
-           }
-              Init()
+  stages {
 
-          }
-      }
+    stage('Init') {
+      steps {
+        script {
+          COMMIT_MESSAGE = git.commitMessage()
+          COMMIT_AUTHOR = git.commitAuthor()
 
-    stage('Build'){
-        steps{
-            build()
+          build.setBuildDescription(
+            message: COMMIT_MESSAGE,
+            description: COMMIT_AUTHOR
+          )
         }
       }
-    stage('UnitTest'){
-        steps{
-            unitTest()
-        }
-      }
-    stage('Deploy'){
-        steps{
-            deploy()
-        }
-      }
-
-
-
-
-
     }
+
+
   }
+}
